@@ -95,3 +95,81 @@ When a user logs in to a RHEL client system that is connected to a Red Hat Direc
 
 This document outlines the core components and sequence involved in authenticating a user from RHDS to a RHEL client system.
 
+----
+
+# ✅ Red Hat Directory Server (RHDS) 12.5 Installation Summary
+
+## 🌟 Objective
+Set up Red Hat Directory Server 12.5 on RHEL 9, based on the new **demodularized packaging** model.
+
+---
+
+## ↺ Key Change in RHDS 12.5
+
+| Before (pre-12.5) | Now (RHDS 12.5+) |
+|-------------------|------------------|
+| `389-ds-base` came from RHDS module (`redhat-ds:12`) | `389-ds-base` now comes directly from **RHEL AppStream** |
+| Required module enablement | ❌ Module enablement **no longer required** |
+| RHDS shipped its own version of `389-ds-base` | RHDS now uses the **RHEL-supplied** `389-ds-base` |
+| Multiple module streams (RHEL + RHDS) | Simpler, unified stream via AppStream |
+
+---
+
+## ✅ Required Repositories
+
+Enable the following repositories:
+
+```bash
+# RHEL Core Repos
+subscription-manager repos \
+--enable=rhel-9-for-x86_64-baseos-rpms \
+--enable=rhel-9-for-x86_64-appstream-rpms
+
+# RHDS 12 Repo (for cockpit and other tools)
+subscription-manager repos --enable=dirsrv-12-for-rhel-9-x86_64-rpms
+```
+
+---
+
+## ❌ Deprecated Command
+
+Do **not** run:
+```bash
+dnf module enable redhat-ds:12
+```
+> ❗ This is **no longer required** or relevant for RHDS 12.5.
+
+---
+
+## 📆 Install Required Packages
+
+```bash
+dnf install 389-ds-base cockpit-389-ds
+```
+
+- `389-ds-base`: Now delivered via **AppStream**
+- `cockpit-389-ds`: Still delivered via **dirsrv-12-for-rhel-9-x86_64-rpms**
+
+---
+
+## 🔍 Verify Package Sources
+
+After installation, verify source repositories:
+
+```bash
+dnf info 389-ds-base
+# → Should show: From repo : rhel-9-for-x86_64-appstream-rpms
+
+dnf info cockpit-389-ds
+# → Should show: From repo : dirsrv-12-for-rhel-9-x86_64-rpms
+```
+
+---
+
+## ✅ Summary
+
+- Use AppStream for `389-ds-base` (no module required)
+- Still enable `dirsrv-12-*` for RHDS tools and integration
+- Skip `dnf module enable redhat-ds:12`
+- Install with `dnf install 389-ds-base cockpit-389-ds`
+
